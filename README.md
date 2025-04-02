@@ -1,0 +1,1 @@
+# cvedetails-auto-screenshot
