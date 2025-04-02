@@ -1,5 +1,6 @@
+# --------------------Python Ignore------------------
 # Byte-compiled / optimized / DLL files
-__pycache__/
+*__pycache__
 *.py[cod]
 *$py.class
 
@@ -94,12 +95,6 @@ ipython_config.py
 #   install all needed dependencies.
 #Pipfile.lock
 
-# UV
-#   Similar to Pipfile.lock, it is generally recommended to include uv.lock in version control.
-#   This is especially recommended for binary packages to ensure reproducibility, and is more
-#   commonly ignored for libraries.
-#uv.lock
-
 # poetry
 #   Similar to Pipfile.lock, it is generally recommended to include poetry.lock in version control.
 #   This is especially recommended for binary packages to ensure reproducibility, and is more
@@ -127,14 +122,14 @@ celerybeat.pid
 # SageMath parsed files
 *.sage.py
 
-# Environments
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
+# # Environments
+# .env
+# .venv
+# env/
+# venv/
+# ENV/
+# env.bak/
+# venv.bak/
 
 # Spyder project settings
 .spyderproject
@@ -167,8 +162,44 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-# Ruff stuff:
-.ruff_cache/
+# --------------------NextJS Ignore------------------
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# PyPI configuration file
-.pypirc
+# dependencies
+auto-screenshot/node_modules
+auto-screenshot/.pnp
+auto-screenshot/.pnp.js
+auto-screenshot/.yarn/install-state.gz
+
+# testing
+auto-screenshot/coverage
+
+# next.js
+auto-screenshot/.next/
+auto-screenshot/out/
+
+# production
+auto-screenshot/build
+
+# misc
+*.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# local env files
+.env*.local
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# --------------------Project Related Ignore------------------
+data
+chromedriver*

@@ -1,0 +1,25 @@
+name: auto-cvedetails-screenshot
+services:
+  frontend:
+    restart: always
+    build: 
+      context: ./auto-screenshot
+      dockerfile: Dockerfile
+    ports:
+      - "8932:3000"
+    volumes:
+      - ./auto-screenshot/app/screenshot:/app/app/screenshot
+  backend:
+    restart: always
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8933:8000"
+    volumes:
+      - ./backend/data:/code/app/data
+      - ./backend/autoCVE.py:/code/app/autoCVE.py
+      - ./backend/api.py:/code/app/api.py
+    environment:
+      FRONTEND_DOMAIN_FROM_BACKEND: http://host.docker.internal:8932
+      FRONTEND_DOMAIN_FROM_CLIENT: http://localhost:8932
