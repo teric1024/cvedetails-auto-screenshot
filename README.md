@@ -12,7 +12,7 @@ To run the service using Docker, execute the following command:
 ```bash
 docker compose up -d
 ```
-By default, the front-end service will be accessible at http://localhost:8932/screenshot.
+By default, the front-end service will be accessible at http://localhost:8932/.
 
 ### Option 2: Run Locally
 To run the service locally, follow these steps:
@@ -41,6 +41,6 @@ In the `compose.yml` file, you can configure the ports for both the front-end an
     - `FRONTEND_DOMAIN_FROM_CLIENT`: The front-end URL as seen by the client.
 
 - In `auto-screenshot/.env`:
-    - `BACKEND_DOMAIN_FROM_CLIENT`: The back-end URL as seen by the front-end client.
+    - `NEXT_PUBLIC_BACKEND_DOMAIN_FROM_CLIENT`: The back-end URL as seen by the front-end client.
 
 When changing the default port settings in `compose.yml`, ensure to update the corresponding environment variables in both `compose.yml` and `auto-screenshot/.env`.

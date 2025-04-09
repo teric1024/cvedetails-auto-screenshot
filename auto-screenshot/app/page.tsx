@@ -1,101 +1,112 @@
-import Image from "next/image";
+'use client'
+import { useState, useEffect } from "react";
+import { FileInput, Label, Button, Spinner } from "flowbite-react";
 
-export default function Home() {
+export default function Screenshot() {
+  const [file, setFile] = useState(null);
+  const [downloadUrl, setDownloadUrl] = useState(null);
+  const [taskId, setTaskId] = useState(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      console.log("Uploading file to backend. " + process.env.NEXT_PUBLIC_BACKEND_DOMAIN_FROM_CLIENT);
+      const response = await fetch(process.env.NEXT_PUBLIC_BACKEND_DOMAIN_FROM_CLIENT + "/screenshot", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (response.ok) {
+        const { task_id } = await response.json();
+        console.log("Upload successful, task ID received: ", task_id);
+        setTaskId(task_id);
+      } else {
+        console.error("Upload failed");
+      }
+    } catch (error) {
+      console.error("Error uploading file:", error);
+    }
+  };
+
+  useEffect(() => {
+    const fetchZipFile = async () => {
+      if (taskId) {
+        try {
+          console.log("Fetching ZIP file...");
+          const zipResponse = await fetch(process.env.NEXT_PUBLIC_BACKEND_DOMAIN_FROM_CLIENT + `/download/${taskId}`, {
+            method: "GET",
+          });
+
+          if (zipResponse.ok) {
+            const contentType = zipResponse.headers.get("content-type");
+            if (contentType && contentType.includes("application/zip")) {
+              const blob = await zipResponse.blob();
+              const url = window.URL.createObjectURL(blob);
+              setDownloadUrl(url);
+              console.log("ZIP file received and ready for download");
+
+              // 自動下載 zip
+              const link = document.createElement("a");
+              link.href = url;
+              link.download = `${process.env.NEXT_PUBLIC_ZIP_FILENAME}`;
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+
+              clearInterval(interval);
+            } else {
+              console.error("Unexpected response content type");
+            }
+          } else {
+            console.error("Failed to fetch ZIP file, retrying in 10 seconds...");
+          }
+        } catch (error) {
+          console.error("Error fetching ZIP file:", error);
+        }
+      }
+    };
+
+    const interval = setInterval(() => {
+      fetchZipFile();
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [taskId]);
+
+  const handleFileChange = async (e) => {
+    setTaskId(null);
+    setDownloadUrl(null);
+    setFile(e.target.files[0]);
+  };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div>
+      <p>Please upload a .txt file containing a list of packages (separate by new line).</p>
+      <p>This server will screenshot the packages and download them as a zip file.</p>
+      <form onSubmit={handleSubmit}>
+        <div >
+          <div className="mb-2 block">
+            <Label htmlFor="file-upload" value="Upload file" />
+          </div>
+          <FileInput id="file-upload" onChange={handleFileChange} accept=".txt" />
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        <Button type="submit" className="mt-4">Upload</Button>
+        {downloadUrl && (
+          <div className="mt-4">
+            <a href={downloadUrl} download={process.env.NEXT_PUBLIC_ZIP_FILENAME} className="text-blue-600 hover:underline">
+              Download {process.env.NEXT_PUBLIC_ZIP_FILENAME}
+            </a>
+          </div>
+        )}
+        {(taskId && !downloadUrl) && (
+          <div><Spinner aria-label="Default status example" />Taking screenshot... Please wait for a few seconds.</div>
+        )}
+      </form>
     </div>
   );
 }
